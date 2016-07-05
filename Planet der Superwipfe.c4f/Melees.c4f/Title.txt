@@ -1,2 +1,0 @@
-DE:Melees
-US:Melees
