@@ -11,6 +11,8 @@ local lorry_wipf; // Speichert das zugehörige Lorenwipf-Objekt
 local PowerJump_Vel;
 local PowerJump_Ready;
 
+local ActionMenu_Obj;
+
 public func IsPossessible() { return(1); }
 
 /* Initialisierung */
@@ -24,6 +26,7 @@ protected func Initialize() {
 	PowerJump_Ready=true;
   SetAction("Walk");
   SetComDir(COMD_None());
+	ActionMenu_Obj=CreateObject(SWAM);
 }
 
 /* TimerCall mit KI-Steuerung */
@@ -355,6 +358,11 @@ protected func ControlDownDouble(){
 	return (PowerJump(90, true));
 }
 
+protected func ControlSpecial(){
+	ActionMenu_Obj->SWAM::Set_Up(this());
+	return (1);
+}
+
 public func PowerJump(angle, override){
 	if(!PowerJump_Ready)
 		return (0);
@@ -366,6 +374,28 @@ public func PowerJump(angle, override){
 
 protected func ContactBottom(){
 	PowerJump_Ready=true;
+}
+
+public func ActionMenuCommand(key){
+	if(key S= "LEFT" || key S= "RIGHT"){
+		if((key S= "LEFT") == (GetDir()==DIR_Left())){
+			SetAction("Bite");
+		}
+		else
+		{
+			SetAction("Kick");
+		}
+	}
+	else
+	if(key S= "DIG"){
+		Message("*Furz*", this());
+	}
+	else
+	if(key S= "THROW"){
+		Message("*Rülps*", this());
+	}
+	else
+	Message("*Irgendwas anderes*", this());
 }
 
 /*
@@ -598,4 +628,27 @@ protected func Eating()
   RemoveObject(Bait);
   // Schmeckt gut
   Sound("Snuff*");
+}
+
+
+protected func Kick_Call(){
+	Message("*Kick*", this());
+	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
+	if(target){
+		DoEnergy(-20, target);
+		var xdelta=GetX(target)-GetX();
+		var ydelta=GetY(target)-GetY();
+		var sqrln=xdelta*xdelta+ydelta*ydelta;
+		sqrln*=1000000;
+		sqrln=Sqrt(sqrln);
+		SetXDir(xdelta*1000000/sqrln, target, 1000);
+		SetYDir(ydelta*1000000/sqrln, target, 1000);
+	}
+}
+
+protected func Bite_Call(){
+	Message("*Beiß*", this());
+	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
+	if(target)
+		DoEnergy(-50, target);
 }

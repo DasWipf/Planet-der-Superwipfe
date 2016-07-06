@@ -1,0 +1,16 @@
+[Action]
+Name=Hide
+Procedure=NONE
+Delay=10
+Length=1
+NextAction=Hide
+
+[Action]
+Name=Show
+Procedure=ATTACH
+Delay=10
+Length=1
+Directions=2
+FlipDir=1
+FacetBase=1
+NextAction=Show

@@ -36,23 +36,10 @@ Name=Kick
 Procedure=NONE
 Directions=2
 FlipDir=1
-Length=18
-Delay=1
-Facet=0,0,24,18
+Length=16
+Delay=2
+Facet=0,36,24,18
 NextAction=Walk
-EndCall=Kick_Call
-InLiquidAction=Swim
-
-[Action]
-Name=Bite
-Procedure=NONE
-Directions=2
-FlipDir=1
-Length=6
-Delay=3
-Facet=0,54,24,18
-NextAction=Walk
-EndCall=Bite_Call
 InLiquidAction=Swim
 
 [Action]
