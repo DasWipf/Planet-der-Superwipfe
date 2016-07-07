@@ -5,6 +5,7 @@ Name=Superwipf
 Category=C4D_Living|C4D_SelectAnimal
 MaxUserSelect=10
 TimerCall=Activity
+Timer=5
 ContactCalls=1
 Width=24
 Height=18
@@ -19,6 +20,7 @@ Mass=20
 Components=RMET=2;WSKN=1;BONE=1
 Picture=432,0,64,64
 Collection=-12,-9,24,18
+CollectionLimit=1
 ContactIncinerate=1
 Prey=1
 Growth=15

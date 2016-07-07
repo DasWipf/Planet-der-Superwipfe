@@ -1,6 +1,7 @@
 /*-- Wipf --*/
 
 #strict
+#include CLNK
 //Nix da mit Ficken
 //#include ANIM
 
@@ -12,6 +13,7 @@ local PowerJump_Vel;
 local PowerJump_Ready;
 
 local ActionMenu_Obj;
+local ActionMenu_Entries;
 
 public func IsPossessible() { return(1); }
 
@@ -19,6 +21,7 @@ public func IsPossessible() { return(1); }
 
 public func InitVars(){
 	PowerJump_Vel=7000;
+	ActionMenu_Entries=[["LEFT", SAMK, "Kick"], ["RIGHT", SAMB, "Bite"]];
 }
 
 protected func Initialize() {
@@ -34,9 +37,13 @@ protected func Initialize() {
 protected func Activity()
 {
   // Geräusche machen
-  if(!Random(15)) Sound("Snuff*");
-	return (0);
-	
+	if(!Random(15)) Sound("Snuff*");
+	if(GetCursor(GetOwner())!=this() && GetAction() S= "Walk" && !Random(10)) SetAction("Sit");
+	else
+	if(GetAction() S= "Walk" && GetComDir()==COMD_None()){
+		SetAction("Idle");
+		SetAction("Walk");
+	}
 	return (0);
 
   // Die KI-Steuerung wird bei Besessenheit nicht gebraucht
@@ -243,6 +250,7 @@ protected func Death()
   LeftLorry();
   ChangeDef(DWPF);
   SetAction("Dead");
+  Explode(10);
   return(1);
 }
 
@@ -292,16 +300,18 @@ public func RejectEntrance(object pNewCont, a,b,c)
 {
   // nur einsammeln lassen wenn er nicht springt
   if (GetAction() S= "Jump") return(1);
-  // Spezial: Einsammeln OK bei aktivierter Wipfjagd
+  return (0);
+  /*// Spezial: Einsammeln OK bei aktivierter Wipfjagd
   if (ObjectCount(WPHT)) return();
   // ansonsten nach Tiersteuerung
-  return (_inherited(pNewCont, a,b,c));
+  return (_inherited(pNewCont, a,b,c));*/
 }
 
 /* Steuerung durch Besessenheit */
 
 protected func RejectCollect(c4ID, pObject)
 {
+	return(0);
  var iEffectNumber, pSorcerer;
  if (iEffectNumber = GetEffect("PossessionSpell", this()))
   if (pSorcerer = EffectVar(0, this(), iEffectNumber))
@@ -359,7 +369,7 @@ protected func ControlDownDouble(){
 }
 
 protected func ControlSpecial(){
-	ActionMenu_Obj->SWAM::Set_Up(this());
+	ActionMenu_Obj->SWAM::Set_Up(this(), ActionMenu_Entries);
 	return (1);
 }
 
@@ -376,26 +386,15 @@ protected func ContactBottom(){
 	PowerJump_Ready=true;
 }
 
-public func ActionMenuCommand(key){
-	if(key S= "LEFT" || key S= "RIGHT"){
-		if((key S= "LEFT") == (GetDir()==DIR_Left())){
-			SetAction("Bite");
-		}
-		else
-		{
-			SetAction("Kick");
+public func ActionMenuCommand(com_id){
+	var l=GetLength(ActionMenu_Entries);
+	for(var i=0; i<l; i++){
+		if(com_id==ActionMenu_Entries[i][1]){
+			SetAction(ActionMenu_Entries[i][2]);
+			break;
 		}
 	}
-	else
-	if(key S= "DIG"){
-		Message("*Furz*", this());
-	}
-	else
-	if(key S= "THROW"){
-		Message("*Rülps*", this());
-	}
-	else
-	Message("*Irgendwas anderes*", this());
+	return (1);
 }
 
 /*
@@ -641,8 +640,9 @@ protected func Kick_Call(){
 		var sqrln=xdelta*xdelta+ydelta*ydelta;
 		sqrln*=1000000;
 		sqrln=Sqrt(sqrln);
-		SetXDir(xdelta*1000000/sqrln, target, 1000);
-		SetYDir(ydelta*1000000/sqrln, target, 1000);
+		SetXDir(xdelta*4000000/sqrln, target, 1000);
+		SetYDir(ydelta*100000/sqrln-3000, target, 1000);
+		ObjectSetAction(target, "Tumble");
 	}
 }
 
@@ -651,4 +651,28 @@ protected func Bite_Call(){
 	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
 	if(target)
 		DoEnergy(-50, target);
+}
+
+protected func ContextSpezialisieren(object pCaller)
+{
+	[Spezialisieren|Image=SWIP|Condition=IsOriginalSuperWipf]
+	CreateMenu(SPWF,pCaller,pCaller,0,"Spezialisieren",0,1);
+	AddMenuItem("Kampfwipf", "Specialize", KSWI, pCaller);
+	AddMenuItem("Speedwipf", "Specialize", GSWI, pCaller);
+	return(1);
+}
+
+func Specialize(id wipf)
+{
+	//Bin mir echt nicht sicher, wie das mit der Spezialisierung gehen soll. hmmmmmm
+	//(Denke ChangeDef() können wir ausschließen, aber ich will den Namen und Rang und so behalten)
+	var clk = CreateObject(wipf, 0, 10,GetOwner());
+	MakeCrewMember(clk,GetOwner());
+	SetCursor(GetOwner(), clk);
+	RemoveObject();
+	return(1);
+}
+
+func IsOriginalSuperWipf(){
+	return (GetID()==SWIP);
 }
