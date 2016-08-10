@@ -10,3 +10,6 @@ Components=SWAM=1;
 Picture=0, 0, 64, 64
 Vertices=1
 VehicleControl=2
+
+[Physical]
+Energy=1000

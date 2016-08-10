@@ -1,4 +1,4 @@
-#strict
+#strict 2
 
 local Controlled_Wipf;
 
@@ -11,9 +11,9 @@ func Initialize(){
 public func Set_Up(wipf){
 	Controlled_Wipf=wipf;
 	SetOwner(GetOwner(wipf));
-	SetVisibility(VIS_Owner());
+	SetVisibility(VIS_Owner);
 	SetPosition(GetX(wipf), GetY(wipf));
-	SetCursor(GetOwner(wipf), this(), true, true);
+	SetCursor(GetOwner(wipf), this, true, true);
 	SetAction("Show", wipf);
 	SetActionData(256*0+5);
 	SetDir(GetDir(wipf));
@@ -43,8 +43,13 @@ protected func ControlDig(){
 	return Send_WipfCommand("DIG");
 }
 
+protected func ControlSpecial() {
+	SetCursor(Controlled_Wipf->GetOwner(), Controlled_Wipf, true, true);
+	Hide();
+}
+
 private func Hide(){
-	SetVisibility(VIS_None());
+	SetVisibility(VIS_None);
 	SetAction("Hide");
 }
 
