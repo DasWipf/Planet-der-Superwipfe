@@ -1,0 +1,7 @@
+[DefCore]
+id=_SWE
+Name=Umwelteffekte
+Version=4,9,5
+Category=C4D_StaticBack | C4D_Rule
+MaxUserSelect=0
+Picture=0,0,32,32

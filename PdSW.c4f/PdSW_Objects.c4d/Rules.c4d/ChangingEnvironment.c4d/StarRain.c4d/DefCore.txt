@@ -1,0 +1,7 @@
+[DefCore]
+id=SWMT
+Name=Star_Rain
+Version=4,9,5
+Category=C4D_StaticBack | C4D_Rule
+MaxUserSelect=255
+Picture=0,0,64,64

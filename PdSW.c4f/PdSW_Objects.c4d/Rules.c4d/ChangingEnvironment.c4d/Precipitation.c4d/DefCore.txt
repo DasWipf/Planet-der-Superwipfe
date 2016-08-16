@@ -1,0 +1,9 @@
+[DefCore]
+id=SCPR
+Version=4,9,8
+Name=Niederschlagsscript
+Category=C4D_StaticBack | C4D_Rule
+Height=1
+Mass=1
+MaxUserSelect=255
+Picture=0,0,64,64

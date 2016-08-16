@@ -11,7 +11,7 @@ protected func Headsmash_Call(){
 	Message("*Kopfstoß*", this());
 	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
 	if(target){
-		DoEnergy(-50, target);
+		DoEnergy(-GetAttackDamage(50, target), target);
 		var xdelta=GetX(target)-GetX();
 		var ydelta=GetY(target)-GetY();
 		var sqrln=xdelta*xdelta+ydelta*ydelta;

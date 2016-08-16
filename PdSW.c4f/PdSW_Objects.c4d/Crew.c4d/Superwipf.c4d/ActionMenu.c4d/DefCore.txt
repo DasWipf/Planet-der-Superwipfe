@@ -8,5 +8,7 @@ Height=64
 Offset=-32, -32
 Components=SWAM=1;
 Picture=0, 0, 64, 64
-Vertices=1
+Vertices=5
+VertexX=0, -32, 0, 32, 0
+VertexY=-32, 0, 32, 0, 0
 VehicleControl=2

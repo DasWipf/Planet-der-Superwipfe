@@ -2,7 +2,6 @@
 
 #strict
 #include CLNK
-//Nix da mit Ficken
 //#include ANIM
 
 local Bait; // Verfolgter Kˆder
@@ -16,6 +15,8 @@ local ActionMenu_Obj;
 local ActionMenu_Entries;
 
 public func IsPossessible() { return(1); }
+
+local DamageLevel;
 
 /* Initialisierung */
 
@@ -31,6 +32,15 @@ protected func Initialize() {
   SetComDir(COMD_None());
 	ActionMenu_Obj=CreateObject(SWAM);
 }
+
+/*public func UpdateStats(statobj){
+	var statarray=statobj->GetStatArray();
+	var l=GetLength(statarray);
+	for(var i=0; i<l; i++){
+		var newphys=GetPhysical(statarray[i][0], 1, this)*100000/statarray[i][1];
+		SetPhysical(statarray[i][0], newphys, PHYS_Temporary, this);
+	}
+}*/
 
 /* TimerCall mit KI-Steuerung */
 
@@ -389,91 +399,13 @@ protected func ContactBottom(){
 public func ActionMenuCommand(com_id){
 	var l=GetLength(ActionMenu_Entries);
 	for(var i=0; i<l; i++){
-		if(com_id==ActionMenu_Entries[i][1]){
+		if(com_id==ActionMenu_Entries[i][0]){
 			SetAction(ActionMenu_Entries[i][2]);
 			break;
 		}
 	}
 	return (1);
 }
-
-/*
-protected func ContainedLeft(object caller)
-{
-  [$TxtMovement$]
-  SetCommand(this(), "None");
-  if(!GetPlrJumpAndRunControl(caller->GetController()))
-  {
-    if(GetAction() eq "Dig")
-    {
-      if (GetComDir()+1 <= 8) SetComDir(GetComDir()+1);
-    }
-    else
-    {
-      TurnLeft();
-    }
-  }
-  return(1);
-}
-
-protected func ContainedRight(object caller)
-{
-  [$TxtMovement$]
-  SetCommand(this(), "None");
-  if(!GetPlrJumpAndRunControl(caller->GetController()))
-  {
-    if(GetAction() eq "Dig")
-    {
-      if(GetComDir()-1 >= 2) SetComDir(GetComDir()-1);
-    }
-    else
-    {
-      TurnRight();
-    }
-  }
-
-  return(1);
-}
-
-protected func ContainedUp(object caller)
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
-
- if (GetAction() eq "Swim")
- {
-  if(!GetPlrJumpAndRunControl(caller->GetController()))
-   SetComDir(COMD_Up());
-
-  return(1);
- }
-
- Jump();
- return(1);
-}
-
-protected func ContainedDown(object caller)
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
- if(Contained()) SetCommand(this, "Exit");
- if (GetAction() eq "Swim")
- {
-  if(!GetPlrJumpAndRunControl(caller->GetController()))
-   SetComDir(COMD_Down());
-  return(1);
- }
-
- // Nicht waehrend des Grabens, weil man sonst bei JumpAndRun-Steuerung
- // nicht nach unten graben kann.
- if (GetAction() eq "Walk")
-  SetAction("Sit");
-
- if(!GetPlrJumpAndRunControl(caller->GetController()) && GetAction() eq "Dig")
-  SetAction("Sit");
-
- return(1);
-}*/
 
 /* JumpAndRun Steuerung */
 
@@ -519,72 +451,6 @@ public func ContainedUpdate(object self, int comdir, bool dig, bool throw)
   return(1);
 }
 
-/*
-
-protected func ControlCommand(szCommand, pTarget, iTx, iTy)
-{
- // Bewegungs- oder Grabkommando
- if (szCommand eq "MoveTo" || szCommand eq "Dig")
-  return(SetCommand(this(),szCommand, pTarget, iTx, iTy));
- return(0);
-}
-
-protected func ContainedLeft()
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
-
- if (GetAction() eq "Dig")
- {
-  if (GetComDir()+1 <= 8) SetComDir(GetComDir()+1);
-  return(1);
- }
-
- TurnLeft();
- return(1);
-}
-
-protected func ContainedRight()
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
-
- if (GetAction() eq "Dig")
- {
-  if (GetComDir()-1 >= 2) SetComDir(GetComDir()-1);
-  return(1);
- }
-
- TurnRight();
- return(1);
-}
-
-protected func ContainedUp()
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
-
- if (GetAction() eq "Swim")
-  return(SetComDir(COMD_Up()));
-
- Jump();
- return(1);
-}
-
-protected func ContainedDown()
-{
- [$TxtMovement$]
- SetCommand(this(), "None");
-
- if (GetAction() eq "Swim")
-  return(SetComDir(COMD_Down()));
-
- if (GetAction() eq "Walk" || GetAction() eq "Dig")
-  SetAction("Sit");
-  
- return(1);
-}*/
-
 protected func ContainedThrow()
 {
  [$TxtDrop$]
@@ -629,12 +495,16 @@ protected func Eating()
   Sound("Snuff*");
 }
 
+protected func GetAttackDamage(amount, target){
+	return Max(1, GetPhysical("Fight")*amount/50000);
+}
+
 
 protected func Kick_Call(){
 	Message("*Kick*", this());
 	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
 	if(target){
-		DoEnergy(-20, target);
+		DoEnergy(-GetAttackDamage(20, target), target);
 		var xdelta=GetX(target)-GetX();
 		var ydelta=GetY(target)-GetY();
 		var sqrln=xdelta*xdelta+ydelta*ydelta;
@@ -650,7 +520,7 @@ protected func Bite_Call(){
 	Message("*Beiﬂ*", this());
 	var target=FindObject2(Find_Distance(10), Find_OCF(OCF_CrewMember), Find_Hostile(GetOwner()));
 	if(target)
-		DoEnergy(-50, target);
+		DoEnergy(-GetAttackDamage(50, target), target);
 }
 
 protected func ContextSpezialisieren(object pCaller)
@@ -673,6 +543,18 @@ func Specialize(id wipf)
 	return(1);
 }
 
-func IsOriginalSuperWipf(){
+public func IsOriginalSuperWipf(){
 	return (GetID()==SWIP);
+}
+
+public func IsSuperWipf(){
+	return (true);
+}
+
+public func ApplyStatChange(statchange){
+	SetPhysical(statchange[0], GetPhysical(statchange[0], 0)*statchange[1]/1000, PHYS_Temporary);
+}
+
+public func UnApplyStatChange(statchange){
+	SetPhysical(statchange[0], GetPhysical(statchange[0], 0)*1000/statchange[1], PHYS_Temporary);
 }
